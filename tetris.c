@@ -15,29 +15,53 @@
 #include "declaration.h"    /* Declarations of project specific functions */
 
 /**
+ * Hardware timer init
+ */
+static void timer_init(void) {
+    // TIMER
+    T2CON = 0x70;                   // Stop timer and set prescale to 1:256
+    PR2 = (80000000 / 256) / 10;    // Set period to flag 10 times a second
+    T2CONSET = 0x8000;              // Start the timer (the bit to start the
+                                    // timer's located at bit 15)
+}
+
+Shape shape;
+
+/**
  * Do tasks before everything starts
  */
 void init(void) {
     display_init(); // Initalize display
+    timer_init();
 
     /*display_string(0, "TETRIS!!!");*/
-    /*display_update();*/
-
     display_update();
 
     draw_borders();
 
-    Shape shape;
     shape.piece_type = 1;
     create_shape(&shape);
-    rotate_shape(&shape);
-    display_shape(&shape);
+    /*rotate_shape(&shape);*/
+    draw_shape(&shape);
 
     render();
 }
 
+unsigned int gametick = 0;
 /**
  * This function is called over and over again
  */
 void update(void) {
+    if (IFS(0) & 0x100) {
+        IFS(0) = 0; // Reset timer flag
+
+        // Tick once a second
+        if (gametick++ % 10 == 0) {
+            gravity(&shape);
+            draw_shape(&shape);
+        }
+
+        // Update the screen 10 times a second
+        render();
+    }
 }

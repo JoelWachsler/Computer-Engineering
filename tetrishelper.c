@@ -137,6 +137,13 @@ void create_shape(Shape *shape) {
             shape->piece[3].y = ORIGIN_Y;
             break;
     }
+
+    // Add these to the before so we can render it freely
+    int i;
+    for(i = 0; i < 4; i++) {
+        shape->piece[i].x_before = shape->piece[i].x;
+        shape->piece[i].y_before = shape->piece[i].y;
+    }
 }
 
 /**
@@ -159,4 +166,15 @@ void rotate_shape(Shape *shape) {
         shape->piece[i].x = shape->x + shape->y - y;
         shape->piece[i].y = shape->y - shape->x + x;
     }
+}
+
+/**
+ * Moves the shape one step towards the bottom of the screen.
+ *
+ * @param [in] shape The shape to move
+ */
+void gravity(Shape *shape) {
+    int i;
+    for(i = 0; i < 4; i++)
+        shape->piece[i].y -= 1;
 }

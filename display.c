@@ -15,6 +15,7 @@
 #include <stdint.h>         /* Declarations of uint_32 and the like */
 #include <pic32mx.h>        /* Declarations of system-specific addresses etc */
 #include "declaration.h"    /* Declarations of project specific functions */
+#include <stdbool.h>    // bool
 
 // Declare static buffer for the screen
 static uint8_t buffer[512] = {0};
@@ -183,25 +184,22 @@ void render() {
     }
 }
 
-
 /**
  * Draws a 3x3 square at the given x and y coord (origin is at the top right corner of the screen).
  * The x and y coord is at the bottom left of the square.
+ * A little bit of abstraction :).
  *
- * @param [in] x x-coordinate
- * @param [in] y y-coordinate
+ * @param [in] square The item to draw
+ * @param [in] remove Should the item be removed or drawn? (true = remove, false = draw)
  */
-static void draw_square(const Square *square) {
+static void draw_square(Square *square, bool remove) {
     // Is this a valid x or y coord?
     // 0 <= x <= 9
     // 0 <= y <= 31
     if (square->x > 9 || square->x < 0 || square->y > 31 || square->y < 0)
         return;
 
-    // Determine where to put the first line
-    // First calculate the pages and values needed needed
-    char page, value;
-
+    unsigned char page, value;
     // Hard coded x values (2 and 7 are missing because they
     // require to pages to render, special cases below has been
     // created for them).
@@ -240,34 +238,51 @@ static void draw_square(const Square *square) {
             break;
     }
 
-    // Put the data in the display buffer so we can render it
+    // Calulcate the y coordinates and put the data in the
+    // display buffer so we can render it
+    // First remove the item from the place it was before
+    // and then add it to its new position
+    int origin, origin_before;
     switch(square->x) {
         case 7:
-            buffer[128 + 127 - square->y*3] |= 3;
-            buffer[128 + 127 - square->y*3 - 1] |= 3;
-            buffer[128 + 127 - square->y*3 - 2] |= 3;
+            // Draw item at the new position
+            origin = 128 + 127 - square->y*3 - 1;
+            buffer[origin]      |= 3;
+            buffer[origin-1]    |= 3;
+            buffer[origin-2]    |= 3;
 
-            buffer[127 - square->y*3] |= 128;
-            buffer[127 - square->y*3 - 1] |= 128;
-            buffer[127 - square->y*3 - 2] |= 128;
+            // Draw item at the new position
+            origin = 127 - square->y*3 - 1;
+            buffer[origin]      |= 128;
+            buffer[origin-1]    |= 128;
+            buffer[origin-2]    |= 128;
             break;
         case 2:
-            buffer[2*128 + 127 - square->y*3] |= 192;
-            buffer[2*128 + 127 - square->y*3 - 1] |= 192;
-            buffer[2*128 + 127 - square->y*3 - 2] |= 192;
+            // Draw item at the new position
+            origin = 2*128 + 127 - square->y*3 - 1;
+            buffer[origin]      |= 192;
+            buffer[origin-1]    |= 192;
+            buffer[origin-2]    |= 192;
 
-            buffer[3*128 + 127 - square->y*3] |= 1;
-            buffer[3*128 + 127 - square->y*3 - 1] |= 1;
-            buffer[3*128 + 127 - square->y*3 - 2] |= 1;
+            // Draw item at the new position
+            origin = 3*128 + 127 - square->y*3 - 1;
+            buffer[origin]      |= 1;
+            buffer[origin-1]    |= 1;
+            buffer[origin-2]    |= 1;
             break;
         default:
             // The page's calculated in the switch statement above
             // and we just add three lines, the first from the origin
             // and the second two over it so we get a nice 3x3 triangle
-            buffer[page*128 + 127 - square->y*3] |= value;
-            buffer[page*128 + 127 - square->y*3 - 1] |= value;
-            buffer[page*128 + 127 - square->y*3 - 2] |= value;
+            origin = page*128 + 127 - square->y*3 - 1;
+            buffer[origin]      |= value;
+            buffer[origin-1]    |= value;
+            buffer[origin-2]    |= value;
     }
+
+    // Set the x_before and y_before to the current ones
+    square->x_before = square->x;
+    square->y_before = square->y;
 }
 
 /**
@@ -277,10 +292,11 @@ static void draw_square(const Square *square) {
  *
  * @param [in] shape Pointer to shape which to render
  */
-void display_shape(const Shape *shape) {
+void draw_shape(Shape *shape) {
     int i;
-    for(i = 0; i < 4; i++)
-        draw_square(&shape->piece[i]);
+    for(i = 0; i < 4; i++) {
+        draw_square(&shape->piece[i], false);
+    }
 }
 
 /**
@@ -297,10 +313,13 @@ void draw_borders(void) {
         buffer[511 - i] |= 128;
     }
 
-    // Draw the top
     // Go through each page and put a line there
-    for (i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++) {
+        // Draw top
         buffer[i * 128 + 4*8] |= 255;
+        // Draw bottom
+        buffer[(i + 1) * 128 - 1] |= 255;
+    }
 }
 
 /**
