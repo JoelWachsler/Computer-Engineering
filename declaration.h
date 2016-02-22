@@ -1,5 +1,5 @@
 /**
- * @file    tetris.h
+ * @file    declaration.h
  * @author  F Lundevall
  * @author  Axel Isaksson
  * @author  Joel Wachsler (wachsler@kth.se)
@@ -7,9 +7,9 @@
  * @date    2015-2016
  * @copyright For copyright and licensing, see file COPYING
  *
- * This header file was written 2016 by Joel wachsler and Marcus Werlinder
- * Content of this file is based on the lab files written by F Lundevall
- * and Axel Isaksson
+ * This header file was written in 2016 by Joel wachsler and Marcus Werlinder.
+ * Some of the content of this file was based on the lab files written
+ * by F Lundevall and Axel Isaksson.
  */
 
 // Declare rectangle for abstraction between
@@ -17,13 +17,14 @@
 typedef struct {
     unsigned char x;
     unsigned char y;
-} Rectangle;
+} Square;
 
 // This shape will be used to build the different blocks
 typedef struct {
-    unsigned char rotation;
-    unsigned char piece;
-    struct Rectangle *pieces;
+    Square piece[4];   // There's always 4 pieces
+    unsigned char piece_type;
+    unsigned char x;
+    unsigned char y;
 } Shape;
 
 /* Declare display-related functions from display.c */
@@ -33,9 +34,13 @@ void display_string(int line, char *s);
 void display_update(void);
 uint8_t spi_send_recv(uint8_t data);
 void render(void);
-void draw_rectangle(const Rectangle *rectangle);
+void display_shape(const Shape *shape);
 
-/* Declare lab-related functions from helper.c */
+/* Declare functions used for easier creation of tetris */
+void create_shape(Shape *shape);
+void rotate_shape(Shape *shape);
+
+/* Declare functions from helper.c */
 char *itoaconv(int num);
 void quicksleep(int cyc);
 void tick(unsigned int * timep);

@@ -9,8 +9,7 @@
  *
  * This file was written 2016 by Joel wachsler and Marcus Werlinder
  * This file is based from the file "mipslabdata.c" and was compiled
- * 2015 by F Lundevall
- * from original code written by Axel Isaksson
+ * 2015 by F Lundevall from original code written by Axel Isaksson
  */
 
 #include <stdint.h>         /* Declarations of uint_32 and the like */

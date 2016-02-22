@@ -15,7 +15,6 @@
 #include <stdint.h>         /* Declarations of uint_32 and the like */
 #include <pic32mx.h>        /* Declarations of system-specific addresses etc */
 #include "declaration.h"    /* Declarations of project specific functions */
-#include <stdbool.h>        // bool
 
 // Declare static buffer for the screen
 static uint8_t buffer[512] = {0};
@@ -55,6 +54,9 @@ void display_debug(volatile int *const addr) {
     display_update();
 }
 
+/**
+ * SPI2 helper function to determine if the interface is ready.
+ */
 uint8_t spi_send_recv(uint8_t data) {
     while(!(SPI2STAT & 0x08));
     SPI2BUF = data;
@@ -62,6 +64,10 @@ uint8_t spi_send_recv(uint8_t data) {
     return SPI2BUF;
 }
 
+/**
+ * Commands to initalize the oled sqreen. If they are not done
+ * in this order the screen could be damaged!
+ */
 void display_init(void) {
     DISPLAY_CHANGE_TO_COMMAND_MODE;
     quicksleep(10);
@@ -92,6 +98,12 @@ void display_init(void) {
     spi_send_recv(0xAF);
 }
 
+/**
+ * Simple display string function(will probably not be used).
+ *
+ * @param [in] line The line which the string should be written
+ * @param [in] s Pointer to the string which should be written
+ */
 void display_string(int line, char *s) {
     int i;
     if(line < 0 || line >= 4)
@@ -107,6 +119,12 @@ void display_string(int line, char *s) {
             textbuffer[line][i] = ' ';
 }
 
+/**
+ * Simple display function for custom graphics(can only handle 32x32 image).
+ *
+ * @param [in] x Coordinate from the left small side of the screen
+ * @param [in] data A pointer to the data which will be written
+ */
 void display_image(const int x, const uint8_t *data) {
     int page, j;
 
@@ -149,6 +167,8 @@ void render() {
         spi_send_recv(page);    // Set the current page
 
         // Don't really know how these work
+        // But they have something to do with the x value from
+        // the left side of the screen
         spi_send_recv(0x0);
         spi_send_recv(0x10);
 
@@ -165,23 +185,27 @@ void render() {
 
 
 /**
- * Draws a 3x3 rectangle at the given x and y coord (origin is at the top right corner of the screen).
- * The x and y coord is at the bottom left of the rectangle.
+ * Draws a 3x3 square at the given x and y coord (origin is at the top right corner of the screen).
+ * The x and y coord is at the bottom left of the square.
  *
  * @param [in] x x-coordinate
  * @param [in] y y-coordinate
  */
-void draw_rectangle(const Rectangle *rectangle) {
-    // Determine if we can draw this shape
-    if (rectangle->x > 9 || rectangle->x < 0)
+static void draw_square(const Square *square) {
+    // Is this a valid x or y coord?
+    // 0 <= x <= 9
+    // 0 <= y <= 31
+    if (square->x > 9 || square->x < 0 || square->y > 31 || square->y < 0)
         return;
 
     // Determine where to put the first line
     // First calculate the pages and values needed needed
     char page, value;
 
-    // Hard coded x values
-    switch(rectangle->x) {
+    // Hard coded x values (2 and 7 are missing because they
+    // require to pages to render, special cases below has been
+    // created for them).
+    switch(square->x) {
         case 9:
             page = 0;
             value = 14;
@@ -216,54 +240,73 @@ void draw_rectangle(const Rectangle *rectangle) {
             break;
     }
 
-    // Check if this item is the only one that requires two
-    // pages to render
-    if (rectangle->x == 7) {
-        buffer[128 + 127 - rectangle->y*3] |= 3;
-        buffer[128 + 127 - rectangle->y*3 - 1] |= 3;
-        buffer[128 + 127 - rectangle->y*3 - 2] |= 3;
+    // Put the data in the display buffer so we can render it
+    switch(square->x) {
+        case 7:
+            buffer[128 + 127 - square->y*3] |= 3;
+            buffer[128 + 127 - square->y*3 - 1] |= 3;
+            buffer[128 + 127 - square->y*3 - 2] |= 3;
 
-        buffer[127 - rectangle->y*3] |= 128;
-        buffer[127 - rectangle->y*3 - 1] |= 128;
-        buffer[127 - rectangle->y*3 - 2] |= 128;
-    } else if (rectangle->x == 2) {
-        buffer[2*128 + 127 - rectangle->y*3] |= 192;
-        buffer[2*128 + 127 - rectangle->y*3 - 1] |= 192;
-        buffer[2*128 + 127 - rectangle->y*3 - 2] |= 192;
+            buffer[127 - square->y*3] |= 128;
+            buffer[127 - square->y*3 - 1] |= 128;
+            buffer[127 - square->y*3 - 2] |= 128;
+            break;
+        case 2:
+            buffer[2*128 + 127 - square->y*3] |= 192;
+            buffer[2*128 + 127 - square->y*3 - 1] |= 192;
+            buffer[2*128 + 127 - square->y*3 - 2] |= 192;
 
-        buffer[3*128 + 127 - rectangle->y*3] |= 1;
-        buffer[3*128 + 127 - rectangle->y*3 - 1] |= 1;
-        buffer[3*128 + 127 - rectangle->y*3 - 2] |= 1;
-    } else {
-        buffer[page*128 + 127 - rectangle->y*3] |= value;
-        buffer[page*128 + 127 - rectangle->y*3 - 1] |= value;
-        buffer[page*128 + 127 - rectangle->y*3 - 2] |= value;
+            buffer[3*128 + 127 - square->y*3] |= 1;
+            buffer[3*128 + 127 - square->y*3 - 1] |= 1;
+            buffer[3*128 + 127 - square->y*3 - 2] |= 1;
+            break;
+        default:
+            // The page's calculated in the switch statement above
+            // and we just add three lines, the first from the origin
+            // and the second two over it so we get a nice 3x3 triangle
+            buffer[page*128 + 127 - square->y*3] |= value;
+            buffer[page*128 + 127 - square->y*3 - 1] |= value;
+            buffer[page*128 + 127 - square->y*3 - 2] |= value;
     }
 }
 
 /**
- * Draws the shape given to this function by the pointer passed to it
+ * Draws the shape given to this function by the pointer passed to it.
+ * It goes through each square(always 4) and sends it to the draw_shape function
+ * which renders it at the given destination.
  *
  * @param [in] shape Pointer to shape which to render
  */
-void draw_shape(const Shape *shape) {
+void display_shape(const Shape *shape) {
+    int i;
+    for(i = 0; i < 4; i++)
+        draw_square(&shape->piece[i]);
 }
 
 /**
- * Draws the borders
+ * Draw the borders
  */
 void draw_borders(void) {
     int i;
-
     // Draw the borders
-    for(i = 0; i < 128; i++) {
+    // Will draw them from the bottom and up
+    for(i = 0; i < 96; i++) {
         // Draw the right border
-        buffer[i] |= 1;
+        buffer[127 - i] |= 1;
         // Draw the left border
-        buffer[511-i] |= 128;
+        buffer[511 - i] |= 128;
     }
+
+    // Draw the top
+    // Go through each page and put a line there
+    for (i = 0; i < 4; i++)
+        buffer[i * 128 + 4*8] |= 255;
 }
 
+/**
+ * Don't really know how this one works but it clears the screen
+ * of items not being used.
+ */
 void display_update(void) {
     int i, j, k;
     int c;
@@ -289,7 +332,7 @@ void display_update(void) {
 }
 
 /**
- * @brief Helper function, local to this file.
+ * Helper function, local to this file.
  * Converts a number to hexadecimal ASCII digits.
  *
  * @param [in] s the char will be placed in this pointer

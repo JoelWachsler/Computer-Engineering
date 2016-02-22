@@ -140,13 +140,3 @@ char *itoaconv(int num) {
      * we must add 1 in order to return a pointer to the first occupied position. */
     return( &itoa_buffer[ i + 1 ] );
 }
-
-/**
- * Sets clears the array which the pointer passed to this function
- * is pointing to.
- *
- * @param [in] item Pointer to the array to clear
- */
-/*void clear(uint8_t *item) {*/
-    /*memset(item, 0, sizeof(*item));*/
-/*}*/
