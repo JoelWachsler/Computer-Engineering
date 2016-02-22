@@ -15,7 +15,7 @@
 
 #include <stdint.h>         /* Declarations of uint_32 and the like */
 #include <pic32mx.h>        /* Declarations of system-specific addresses etc */
-#include "declaration.h"   /* Declarations of project specific functions */
+#include "declaration.h"    /* Declarations of project specific functions */
 
 char textbuffer[4][16];
 

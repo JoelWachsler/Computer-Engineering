@@ -12,17 +12,34 @@
  * and Axel Isaksson
  */
 
+// Declare rectangle for abstraction between
+// the programmer and the oled screen
+typedef struct {
+    unsigned char x;
+    unsigned char y;
+} Rectangle;
+
+// This shape will be used to build the different blocks
+typedef struct {
+    unsigned char rotation;
+    unsigned char piece;
+    struct Rectangle *pieces;
+} Shape;
+
 /* Declare display-related functions from display.c */
 void display_image(int x, const uint8_t *data);
 void display_init(void);
 void display_string(int line, char *s);
 void display_update(void);
 uint8_t spi_send_recv(uint8_t data);
+void render(void);
+void draw_rectangle(const Rectangle *rectangle);
 
 /* Declare lab-related functions from helper.c */
 char *itoaconv(int num);
 void quicksleep(int cyc);
 void tick(unsigned int * timep);
+void clear(uint8_t *item);
 
 /* Declare display_debug - a function to help debugging.
 

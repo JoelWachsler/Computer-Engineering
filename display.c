@@ -14,7 +14,11 @@
 
 #include <stdint.h>         /* Declarations of uint_32 and the like */
 #include <pic32mx.h>        /* Declarations of system-specific addresses etc */
-#include "declaration.h"   /* Declarations of project specific functions */
+#include "declaration.h"    /* Declarations of project specific functions */
+#include <stdbool.h>        // bool
+
+// Declare static buffer for the screen
+static uint8_t buffer[512] = {0};
 
 /* Declare a helper function which is local to this file */
 static void num32asc(char *s, int);
@@ -103,22 +107,160 @@ void display_string(int line, char *s) {
             textbuffer[line][i] = ' ';
 }
 
-void display_image(int x, const uint8_t *data) {
-    int i, j;
+void display_image(const int x, const uint8_t *data) {
+    int page, j;
 
-    for(i = 0; i < 4; i++) {
+    // 4 stripes across the display called pages
+    // each stripe is 8 pixels high and can hold 128 bytes
+    for(page = 0; page < 4; page++) {
         DISPLAY_CHANGE_TO_COMMAND_MODE;
 
-        spi_send_recv(0x22);
-        spi_send_recv(i);
+        spi_send_recv(0x22);    // Command to set the page
+        spi_send_recv(page);    // Set the current page
 
+        // Don't really know how these work
         spi_send_recv(x & 0xF);
         spi_send_recv(0x10 | ((x >> 4) & 0xF));
 
         DISPLAY_CHANGE_TO_DATA_MODE;
 
+        // j is the x axis of the current page
         for(j = 0; j < 32; j++)
-            spi_send_recv(~data[i*32 + j]);
+            // Each byte sent to this function is a 8 pixel high column on the display
+            // the lsb is the top most pixel and the msb is the most bottom pixel
+            spi_send_recv(~data[page*32 + j]);
+    }
+}
+
+/**
+ * This function puts the data from the buffer provided to it and sends it to
+ * the screen. The buffer is always 4 * 128 bytes (512 bytes) big.
+ * Gets its data from the static buffer.
+ */
+void render() {
+    int page, j;
+
+    // 4 stripes across the display called pages
+    // each stripe is 8 pixels high and can hold 128 bytes
+    for(page = 0; page < 4; page++) {
+        DISPLAY_CHANGE_TO_COMMAND_MODE;
+
+        spi_send_recv(0x22);    // Command to set the page
+        spi_send_recv(page);    // Set the current page
+
+        // Don't really know how these work
+        spi_send_recv(0x0);
+        spi_send_recv(0x10);
+
+        DISPLAY_CHANGE_TO_DATA_MODE;
+
+        // j is the x axis of the current page
+        for(j = 0; j < 128; j++)
+            // Each byte sent to this function is a 8 pixel high column on the display
+            // the lsb is the top most pixel and the msb is the most bottom pixel
+            /*spi_send_recv(data[page + j]);*/
+            spi_send_recv(buffer[page*128 + j]);
+    }
+}
+
+
+/**
+ * Draws a 3x3 rectangle at the given x and y coord (origin is at the top right corner of the screen).
+ * The x and y coord is at the bottom left of the rectangle.
+ *
+ * @param [in] x x-coordinate
+ * @param [in] y y-coordinate
+ */
+void draw_rectangle(const Rectangle *rectangle) {
+    // Determine if we can draw this shape
+    if (rectangle->x > 9 || rectangle->x < 0)
+        return;
+
+    // Determine where to put the first line
+    // First calculate the pages and values needed needed
+    char page, value;
+
+    // Hard coded x values
+    switch(rectangle->x) {
+        case 9:
+            page = 0;
+            value = 14;
+            break;
+        case 8:
+            page = 0;
+            value = 112;
+            break;
+        case 6:
+            page = 1;
+            value = 28;
+            break;
+        case 5:
+            page = 1;
+            value = 224;
+            break;
+        case 4:
+            page = 2;
+            value = 7;
+            break;
+        case 3:
+            page = 2;
+            value = 56;
+            break;
+        case 1:
+            page = 3;
+            value = 14;
+            break;
+        case 0:
+            page = 3;
+            value = 112;
+            break;
+    }
+
+    // Check if this item is the only one that requires two
+    // pages to render
+    if (rectangle->x == 7) {
+        buffer[128 + 127 - rectangle->y*3] |= 3;
+        buffer[128 + 127 - rectangle->y*3 - 1] |= 3;
+        buffer[128 + 127 - rectangle->y*3 - 2] |= 3;
+
+        buffer[127 - rectangle->y*3] |= 128;
+        buffer[127 - rectangle->y*3 - 1] |= 128;
+        buffer[127 - rectangle->y*3 - 2] |= 128;
+    } else if (rectangle->x == 2) {
+        buffer[2*128 + 127 - rectangle->y*3] |= 192;
+        buffer[2*128 + 127 - rectangle->y*3 - 1] |= 192;
+        buffer[2*128 + 127 - rectangle->y*3 - 2] |= 192;
+
+        buffer[3*128 + 127 - rectangle->y*3] |= 1;
+        buffer[3*128 + 127 - rectangle->y*3 - 1] |= 1;
+        buffer[3*128 + 127 - rectangle->y*3 - 2] |= 1;
+    } else {
+        buffer[page*128 + 127 - rectangle->y*3] |= value;
+        buffer[page*128 + 127 - rectangle->y*3 - 1] |= value;
+        buffer[page*128 + 127 - rectangle->y*3 - 2] |= value;
+    }
+}
+
+/**
+ * Draws the shape given to this function by the pointer passed to it
+ *
+ * @param [in] shape Pointer to shape which to render
+ */
+void draw_shape(const Shape *shape) {
+}
+
+/**
+ * Draws the borders
+ */
+void draw_borders(void) {
+    int i;
+
+    // Draw the borders
+    for(i = 0; i < 128; i++) {
+        // Draw the right border
+        buffer[i] |= 1;
+        // Draw the left border
+        buffer[511-i] |= 128;
     }
 }
 

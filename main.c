@@ -14,7 +14,7 @@
 
 #include <stdint.h>         /* Declarations of uint_32 and the like */
 #include <pic32mx.h>        /* Declarations of system-specific addresses etc */
-#include "declaration.h"   /* Declarations of project specific functions */
+#include "declaration.h"    /* Declarations of project specific functions */
 
 int main(void) {
     /* Set up peripheral bus clock */
@@ -52,19 +52,10 @@ int main(void) {
     /* SPI2CON bit ON = 1; */
     SPI2CONSET = 0x8000;
 
-    display_init();
-    display_string(0, "KTH/ICT lab");
-    display_string(1, "in Computer");
-    display_string(2, "Engineering");
-    display_string(3, "Welcome!");
-    display_update();
-
-    display_image(96, icon);
-
     init(); /* Do any lab-specific initialization */
 
-    while( 1 ) {
-        update(); /* Do lab-specific things again and again */
-    }
+    while(1)
+        update(); /* Update the screen */
+
     return 0;
 }
