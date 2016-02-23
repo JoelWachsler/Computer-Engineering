@@ -152,13 +152,36 @@ void display_image(const int x, const uint8_t *data) {
 }
 
 /**
+ * Draw the borders
+ */
+void draw_borders(void) {
+    int i;
+    // Draw the borders
+    // Will draw them from the bottom and up
+    for(i = 0; i < 96; i++) {
+        // Draw the right border
+        buffer[127 - i] |= 1;
+        // Draw the left border
+        buffer[511 - i] |= 128;
+    }
+
+    // Go through each page and put a line there
+    for (i = 0; i < 4; i++) {
+        // Draw top
+        buffer[i * 128 + 4*8 - 1] |= 255;
+        // Draw bottom
+        buffer[(i + 1) * 128 - 1] |= 255;
+    }
+}
+
+/**
  * This function puts the data from the buffer provided to it and sends it to
  * the screen. The buffer is always 4 * 128 bytes (512 bytes) big.
  * Gets its data from the static buffer.
  */
 void render() {
+    draw_borders();
     int page, j;
-
     // 4 stripes across the display called pages
     // each stripe is 8 pixels high and can hold 128 bytes
     for(page = 0; page < 4; page++) {
@@ -176,23 +199,27 @@ void render() {
         DISPLAY_CHANGE_TO_DATA_MODE;
 
         // j is the x axis of the current page
-        for(j = 0; j < 128; j++)
+        for(j = 0; j < 128; j++) {
             // Each byte sent to this function is a 8 pixel high column on the display
             // the lsb is the top most pixel and the msb is the most bottom pixel
-            /*spi_send_recv(data[page + j]);*/
             spi_send_recv(buffer[page*128 + j]);
+            // Clear the buffer after drawing it
+            buffer[page*128 + j] = 0x0;
+        }
     }
+
 }
 
 /**
- * Draws a 3x3 square at the given x and y coord (origin is at the top right corner of the screen).
+ * Draws a 3x3 square at the given x and y coord
+ * (origin is at the top right corner of the screen).
  * The x and y coord is at the bottom left of the square.
  * A little bit of abstraction :).
  *
  * @param [in] square The item to draw
  * @param [in] remove Should the item be removed or drawn? (true = remove, false = draw)
  */
-static void draw_square(Square *square, bool remove) {
+static void draw_square(Square *square) {
     // Is this a valid x or y coord?
     // 0 <= x <= 9
     // 0 <= y <= 31
@@ -242,7 +269,7 @@ static void draw_square(Square *square, bool remove) {
     // display buffer so we can render it
     // First remove the item from the place it was before
     // and then add it to its new position
-    int origin, origin_before;
+    int origin;
     switch(square->x) {
         case 7:
             // Draw item at the new position
@@ -279,10 +306,6 @@ static void draw_square(Square *square, bool remove) {
             buffer[origin-1]    |= value;
             buffer[origin-2]    |= value;
     }
-
-    // Set the x_before and y_before to the current ones
-    square->x_before = square->x;
-    square->y_before = square->y;
 }
 
 /**
@@ -294,32 +317,8 @@ static void draw_square(Square *square, bool remove) {
  */
 void draw_shape(Shape *shape) {
     int i;
-    for(i = 0; i < 4; i++) {
-        draw_square(&shape->piece[i], false);
-    }
-}
-
-/**
- * Draw the borders
- */
-void draw_borders(void) {
-    int i;
-    // Draw the borders
-    // Will draw them from the bottom and up
-    for(i = 0; i < 96; i++) {
-        // Draw the right border
-        buffer[127 - i] |= 1;
-        // Draw the left border
-        buffer[511 - i] |= 128;
-    }
-
-    // Go through each page and put a line there
-    for (i = 0; i < 4; i++) {
-        // Draw top
-        buffer[i * 128 + 4*8] |= 255;
-        // Draw bottom
-        buffer[(i + 1) * 128 - 1] |= 255;
-    }
+    for(i = 0; i < 4; i++)
+        draw_square(&shape->piece[i]);
 }
 
 /**

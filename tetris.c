@@ -14,6 +14,11 @@
 #include <pic32mx.h>        /* Declarations of system-specific addresses etc */
 #include "declaration.h"    /* Declarations of project specific functions */
 
+int btns;
+int getbtns(void) {
+    return PORTD >> 5 & 0b111;
+}
+
 /**
  * Hardware timer init
  */
@@ -25,6 +30,16 @@ static void timer_init(void) {
                                     // timer's located at bit 15)
 }
 
+/**
+ * Hardware button init
+ */
+static void btn_init(void) {
+    // Init port D
+    // Set bits 11 through 5 to 1 (input)
+    TRISDSET = 0b1111111 << 5;
+}
+
+// Create a dummy shape for now
 Shape shape;
 
 /**
@@ -52,16 +67,22 @@ unsigned int gametick = 0;
  * This function is called over and over again
  */
 void update(void) {
+    btns = getbtns();
+
+    if (btns & 0x1) {
+        rotate_shape(&shape);
+    }
+
     if (IFS(0) & 0x100) {
         IFS(0) = 0; // Reset timer flag
 
         // Tick once a second
         if (gametick++ % 10 == 0) {
             gravity(&shape);
-            draw_shape(&shape);
         }
 
         // Update the screen 10 times a second
+        draw_shape(&shape);
         render();
     }
 }
