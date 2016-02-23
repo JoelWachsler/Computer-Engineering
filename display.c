@@ -207,7 +207,6 @@ void render() {
             buffer[page*128 + j] = 0x0;
         }
     }
-
 }
 
 /**
@@ -219,7 +218,7 @@ void render() {
  * @param [in] square The item to draw
  * @param [in] remove Should the item be removed or drawn? (true = remove, false = draw)
  */
-static void draw_square(Square *square) {
+static void draw_square(const Square *square) {
     // Is this a valid x or y coord?
     // 0 <= x <= 9
     // 0 <= y <= 31
@@ -315,7 +314,7 @@ static void draw_square(Square *square) {
  *
  * @param [in] shape Pointer to shape which to render
  */
-void draw_shape(Shape *shape) {
+void draw_shape(const Shape *shape) {
     int i;
     for(i = 0; i < 4; i++)
         draw_square(&shape->piece[i]);

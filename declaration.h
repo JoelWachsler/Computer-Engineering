@@ -32,7 +32,7 @@ void display_string(int line, char *s);
 void display_update(void);
 uint8_t spi_send_recv(uint8_t data);
 void render(void);
-void draw_shape(Shape *shape);
+void draw_shape(const Shape *shape);
 
 /* Declare functions used for easier creation of tetris */
 void create_shape(Shape *shape);

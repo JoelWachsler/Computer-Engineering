@@ -41,6 +41,7 @@ static void btn_init(void) {
 
 // Create a dummy shape for now
 Shape shape;
+Shape shape1;
 
 /**
  * Do tasks before everything starts
@@ -54,15 +55,20 @@ void init(void) {
 
     draw_borders();
 
-    shape.piece_type = 1;
+    shape.piece_type = 5;
+    shape1.piece_type = 1;
+
     create_shape(&shape);
+    create_shape(&shape1);
     /*rotate_shape(&shape);*/
     draw_shape(&shape);
+    draw_shape(&shape1);
 
     render();
 }
 
 unsigned int gametick = 0;
+unsigned int other = 0;
 /**
  * This function is called over and over again
  */
@@ -78,10 +84,16 @@ void update(void) {
             /*}*/
             rotate_shape(&shape);
             gravity(&shape);
+
+            if (other++ % 2 == 0) {
+                rotate_shape(&shape1);
+                gravity(&shape1);
+            }
         }
 
         // Update the screen 10 times a second
         draw_shape(&shape);
+        draw_shape(&shape1);
         render();
     }
 }
