@@ -17,16 +17,12 @@
 typedef struct {
     unsigned char x;
     unsigned char y;
-    unsigned char x_before;
-    unsigned char y_before;
 } Square;
 
 // This shape will be used to build the different blocks
 typedef struct {
     Square piece[4];   // There's always 4 pieces
     unsigned char piece_type;
-    unsigned char x;
-    unsigned char y;
 } Shape;
 
 /* Declare display-related functions from display.c */

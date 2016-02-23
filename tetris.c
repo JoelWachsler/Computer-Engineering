@@ -69,15 +69,14 @@ unsigned int gametick = 0;
 void update(void) {
     btns = getbtns();
 
-    if (btns & 0x1) {
-        rotate_shape(&shape);
-    }
-
     if (IFS(0) & 0x100) {
         IFS(0) = 0; // Reset timer flag
 
         // Tick once a second
         if (gametick++ % 10 == 0) {
+            /*if (btns & 0x1) {*/
+            /*}*/
+            rotate_shape(&shape);
             gravity(&shape);
         }
 

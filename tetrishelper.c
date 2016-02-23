@@ -32,9 +32,6 @@
  * @param [in] shape Pointer to the resulting struct with the id already defined
  */
 void create_shape(Shape *shape) {
-    // Origin of the current piece
-    shape->x = ORIGIN_X;
-    shape->y = ORIGIN_Y;
     // The pieces are always created at the same origin coordinate (4, 28)
     // 5 coords from the top.
     switch(shape->piece_type) {
@@ -137,13 +134,6 @@ void create_shape(Shape *shape) {
             shape->piece[3].y = ORIGIN_Y;
             break;
     }
-
-    // Add these to the before so we can render it freely
-    int i;
-    for(i = 0; i < 4; i++) {
-        shape->piece[i].x_before = shape->piece[i].x;
-        shape->piece[i].y_before = shape->piece[i].y;
-    }
 }
 
 /**
@@ -152,7 +142,9 @@ void create_shape(Shape *shape) {
  * @param [in] shape Pointer to the shape which will be rotated
  */
 void rotate_shape(Shape *shape) {
-    int i, x, y;
+    unsigned char i, x, y, xc, yc;
+    xc = shape->piece[0].x;
+    yc = shape->piece[0].y;
     // Go through each square.
     // The first square is always the origin of the piece
     // so we don't have to do anything about that one.
@@ -163,8 +155,8 @@ void rotate_shape(Shape *shape) {
         // where (xc, yc) are the origin coordinates
         x = shape->piece[i].x;
         y = shape->piece[i].y;
-        shape->piece[i].x = shape->x + shape->y - y;
-        shape->piece[i].y = shape->y - shape->x + x;
+        shape->piece[i].x = xc + yc - y;
+        shape->piece[i].y = yc - xc + x;
     }
 }
 
@@ -174,7 +166,9 @@ void rotate_shape(Shape *shape) {
  * @param [in] shape The shape to move
  */
 void gravity(Shape *shape) {
+    // Gravity doesn't play well with rotate_shape
     int i;
-    for(i = 0; i < 4; i++)
+    for(i = 0; i < 4; i++) {
         shape->piece[i].y -= 1;
+    }
 }
