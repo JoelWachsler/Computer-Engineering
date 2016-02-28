@@ -218,7 +218,7 @@ void render() {
  * @param [in] square The item to draw
  * @param [in] remove Should the item be removed or drawn? (true = remove, false = draw)
  */
-static void draw_square(const Square *square) {
+void draw_square(const Square *square) {
     // Is this a valid x or y coord?
     // 0 <= x <= 9
     // 0 <= y <= 31

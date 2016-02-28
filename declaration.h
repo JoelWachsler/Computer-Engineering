@@ -11,7 +11,7 @@
  * Some of the content of this file was based on the lab files written
  * by F Lundevall and Axel Isaksson.
  */
-
+#include <stdbool.h>        /* To be able to use boolean */
 // Declare rectangle for abstraction between
 // the programmer and the oled screen
 typedef struct {
@@ -33,10 +33,17 @@ void display_update(void);
 uint8_t spi_send_recv(uint8_t data);
 void render(void);
 void draw_shape(const Shape *shape);
+void draw_square(const Square *square);
+void draw_grid_pieces(void);
 
 /* Declare functions used for easier creation of tetris */
 void create_shape(Shape *shape);
 void rotate_shape(Shape *shape);
+void moveSideways(Shape *shape, int way);
+bool belowCheck(Shape *shape); //Is needed, to know when we are at bottom
+bool sideCheck(Shape *shape, int LorR);
+bool rotateCheck(Shape *shape);
+void fullRow(void);
 
 /* Declare functions from helper.c */
 char *itoaconv(int num);
