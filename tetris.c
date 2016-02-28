@@ -118,13 +118,13 @@ void update(void) {
         if(btns == 2)
             if(menuPointer != 0){
                 menuSelect.piece[0].y = 25;
-                draw_square(&menuSelect);
+                draw_square(&menuSelect.piece[0]);
                 menuPointer = 0;
             }
         if(btns == 4)
         if(menuPointer != 1){
             menuSelect.piece[0].y = 29;
-            draw_square(&menuSelect);
+            draw_square(&menuSelect.piece[0]);
             menuPointer = 1;
         }
 
@@ -152,7 +152,7 @@ void update(void) {
         // Update the screen 10 times a second
 
         draw_grid_pieces();
-        draw_square(&menuSelect);
+        draw_square(&menuSelect.piece[0]);
         draw_shape(&shape);
         //draw_shape(&shape1);
 
