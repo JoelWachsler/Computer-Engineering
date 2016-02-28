@@ -14,10 +14,13 @@
 #include <pic32mx.h>        /* Declarations of system-specific addresses etc */
 #include "declaration.h"    /* Declarations of project specific functions */
 #include <stdbool.h>        /* To be able to use boolean */
-#include <stdlib.h>         /* abs */
 
 int btns;
 int btns2;
+int menuPointer = 0;
+int gameMode = 0;
+int score = 0;
+
 int getbtns(void) {
     return PORTD >> 5 & 0b1111;
 }
@@ -47,6 +50,7 @@ static void btn_init(void) {
 
 // Create a dummy shape for now
 Shape shape;
+Shape menuSelect;
 /**
 * Do tasks before everything starts
 */
@@ -62,6 +66,10 @@ void init(void) {
     setGrid();//To set the borders in the grid to true
 
     shape.piece_type = 0;
+    menuSelect.piece_type = 0;
+    create_shape(&menuSelect);
+    menuSelect.piece[0].x = 1;
+    menuSelect.piece[0].y = 29;
 
     create_shape(&shape);
     //create_shape(&shape1);
@@ -102,7 +110,22 @@ void update(void) {
         if(btns == 4) //Now we want to check if we can rotate
             if(rotateCheck(&shape))
                 rotate_shape(&shape);
-                
+
+        //For the menu
+        if(btns == 2)
+            if(menuPointer != 0){
+                menuSelect.piece[0].y = 25;
+                draw_square(&menuSelect);
+                menuPointer = 0;
+            }
+        if(btns == 4)
+        if(menuPointer != 1){
+            menuSelect.piece[0].y = 29;
+            draw_square(&menuSelect);
+            menuPointer = 1;
+        }
+
+
         // Tick once a second
         if (gametick++ % 10 == 0) {
             /*if (btns & 0x1) {*/
@@ -122,9 +145,12 @@ void update(void) {
         }*/
         }
         // Update the screen 10 times a second
+
         draw_grid_pieces();
+        draw_square(&menuSelect);
         draw_shape(&shape);
         //draw_shape(&shape1);
+
         render();
     }
 }
