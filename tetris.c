@@ -25,6 +25,7 @@ static uint64_t seed = 0;
 
 static Shape shape;
 static Shape menuSelect;
+static Shape shape2;
 
 typedef enum {
     MAIN_MENU,
@@ -72,7 +73,11 @@ static void game_init(void) {
 
     draw_borders();
     setGrid();//To set the borders in the grid to true
+
+    randomize_piece(&shape);
     create_shape(&shape);
+    randomize_piece(&shape2);
+    adapt_piece(&shape2);
 
     render();
 }
@@ -136,9 +141,12 @@ static void game(void) {
             if(belowCheck(&shape)){
                 gravity(&shape);
                 score += 10;
-            }
-            else
+            } else {
+                shape.piece_type = shape2.piece_type;
                 create_shape(&shape);
+                randomize_piece(&shape2);
+                adapt_piece(&shape2);
+            }
             break;
         case 2:
             if(sideCheck(&shape, 1)) //Now we want to check if we can actually go to the sides
@@ -156,11 +164,14 @@ static void game(void) {
     }
 
     // Tick once a second
-    if (gametick++ % 2 == 0) {
+    if (gametick++ % 10 == 0) {
         if(belowCheck(&shape))
             gravity(&shape);
         else {
+            shape.piece_type = shape2.piece_type;
             create_shape(&shape);
+            randomize_piece(&shape2);
+            adapt_piece(&shape2);
         }
         //Reset shapes cordinates and change shape
         score += (1000/(4/fullRow()));
@@ -168,6 +179,8 @@ static void game(void) {
             /*lvl = 2;*/
     }
 
+    draw_gameScreen();
+    draw_shape(&shape2);
     draw_shape(&shape);
     draw_grid_pieces();
     draw_borders();

@@ -42,6 +42,10 @@ void setGrid(void)
         }
 }
 
+void randomize_piece(Shape *shape) {
+    // Randomize the piece
+    shape->piece_type = pieces[pcg32_random_r(&rng) % 7];
+}
 /**
  * Creates the shape based on the id pass to this function.
  * We have to pass the result shape to the function because
@@ -58,8 +62,6 @@ void setGrid(void)
  * @param [in] shape Pointer to the resulting struct with the id already defined
  */
 void create_shape(Shape *shape) {
-    // Ranomize the piece
-    shape->piece_type = pieces[pcg32_random_r(&rng) % 7];
     // The pieces are always created at the same origin coordinate (4, 28)
     // 5 coords from the top.
     switch(shape->piece_type) {
@@ -160,6 +162,110 @@ void create_shape(Shape *shape) {
             // Bottom left
             shape->piece[3].x = ORIGIN_X-1;
             shape->piece[3].y = ORIGIN_Y;
+            break;
+    }
+}
+
+void adapt_piece(Shape *shape){
+    //This will move the piece to the display
+    switch(shape->piece_type) {
+        case 0:
+            // Bottom
+            shape->piece[0].x = 7;
+            shape->piece[0].y = 40;
+            // Left
+            shape->piece[1].x = 6;
+            shape->piece[1].y = 40;
+            // Two left
+            shape->piece[2].x = 5;
+            shape->piece[2].y = 40;
+            // Right
+            shape->piece[3].x = 8;
+            shape->piece[3].y = 40;
+            break;
+        case 1:
+            // Center
+            shape->piece[0].x = 6;
+            shape->piece[0].y = 39;
+            // Right
+            shape->piece[1].x = 7;
+            shape->piece[1].y = 39;
+            // Left
+            shape->piece[2].x = 5;
+            shape->piece[2].y = 39;
+            // Bottom left
+            shape->piece[3].x = 5;
+            shape->piece[3].y = 40;
+            break;
+        case 2:
+            // Center
+            shape->piece[0].x = 6;
+            shape->piece[0].y = 39;
+            // Right
+            shape->piece[1].x = 7;
+            shape->piece[1].y = 39;
+            // Left
+            shape->piece[2].x = 5;
+            shape->piece[2].y = 39;
+            // Bottom right
+            shape->piece[3].x = 7;
+            shape->piece[3].y = 40;
+            break;
+        case 3:
+            // Bottom left
+            shape->piece[0].x = 6;
+            shape->piece[0].y = 39;
+            // Bottom right
+            shape->piece[1].x = 7;
+            shape->piece[1].y = 39;
+            // Top left
+            shape->piece[2].x = 6;
+            shape->piece[2].y = 40;
+            // Top right
+            shape->piece[3].x = 7;
+            shape->piece[3].y = 40;
+            break;
+        case 4:
+            // Top center
+            shape->piece[0].x = 6;
+            shape->piece[0].y = 40;
+            // Bottom center
+            shape->piece[1].x = 6;
+            shape->piece[1].y = 39;
+            // Top left
+            shape->piece[2].x = 5;
+            shape->piece[2].y = 40;
+            // Top right
+            shape->piece[3].x = 7;
+            shape->piece[3].y = 40;
+            break;
+        case 5:
+            // Bottom center
+            shape->piece[0].x = 6;
+            shape->piece[0].y = 39;
+            // Top center
+            shape->piece[1].x = 6;
+            shape->piece[1].y = 40;
+            // Top left
+            shape->piece[2].x = 5;
+            shape->piece[2].y = 40;
+            // Bottom right
+            shape->piece[3].x = 7;
+            shape->piece[3].y = 39;
+            break;
+        case 6:
+            // Bottom center
+            shape->piece[0].x = 6;
+            shape->piece[0].y = 39;
+            // Top center
+            shape->piece[1].x = 6;
+            shape->piece[1].y = 40;
+            // Top right
+            shape->piece[2].x = 7;
+            shape->piece[2].y = 40;
+            // Bottom left
+            shape->piece[3].x = 5;
+            shape->piece[3].y = 39;
             break;
     }
 }
