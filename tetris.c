@@ -20,6 +20,7 @@ int btns2;
 int menuPointer = 0;
 int gameMode = 0;
 int score = 0;
+int lvl = 10;
 
 int getbtns(void) {
     return PORTD >> 5 & 0b1111;
@@ -93,8 +94,10 @@ void update(void) {
         IFS(0) = 0; // Reset timer flag
 
         if(btns2 == 1){//If we want to get fast down
-            if(belowCheck(&shape))
+            if(belowCheck(&shape)){
                 gravity(&shape);
+                score += 10;
+            }
             else
                 create_shape(&shape);
         }
@@ -127,7 +130,7 @@ void update(void) {
 
 
         // Tick once a second
-        if (gametick++ % 10 == 0) {
+        if (gametick++ % 2 == 0) {
             /*if (btns & 0x1) {*/
             /*}*/
             //rotate_shape(&shape);
@@ -137,7 +140,9 @@ void update(void) {
             else
                 create_shape(&shape);
                 //Reset shapes cordinates and change shape
-            fullRow();
+            score += (1000/(4/fullRow()));
+            if(score > 100)
+                lvl = 2;
 
             /*if (other++ % 2 == 0) {
             rotate_shape(&shape1);

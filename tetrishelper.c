@@ -333,11 +333,12 @@ void fixer(int y, int b, int antalRow){
  * This program will check if we have mutlipel full rows and will delet them
  * And move the above down
  */
-void fullRow(){
+int fullRow(){
     int x;
     int y;
     int fullrow = 0;
     int antalRow = 0;
+    int antalRowB = 0;
 
     for(y = 31; y > -1; y--){//Going through all rows to see if we have a full row
         fullrow = 0;
@@ -346,6 +347,7 @@ void fullRow(){
                 fullrow++;
         }
         if(fullrow == 10){//If we have a full row we add one to the amount of rows to remove
+            antalRowB++;
             antalRow++;
         }
         if(fullrow < 10)//1 case when we have a row not at the bottom
@@ -359,4 +361,5 @@ void fullRow(){
                 antalRow = 0;
             }
     }
+    return antalRowB;
 }

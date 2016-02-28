@@ -43,7 +43,7 @@ void moveSideways(Shape *shape, int way);
 bool belowCheck(Shape *shape); //Is needed, to know when we are at bottom
 bool sideCheck(Shape *shape, int LorR);
 bool rotateCheck(Shape *shape);
-void fullRow(void);
+int fullRow(void);
 
 /* Declare functions from helper.c */
 char *itoaconv(int num);
