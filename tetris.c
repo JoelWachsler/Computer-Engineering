@@ -24,6 +24,7 @@ unsigned int gametick = 0;
 unsigned int other = 0;
 
 Shape shape;
+Shape shape2;
 Shape menuSelect;
 
 typedef enum {
@@ -64,7 +65,10 @@ static void game_init(void) {
     draw_borders();
     setGrid();//To set the borders in the grid to true
     shape.piece_type = 0;
+    shape2.piece_type = 2;
     create_shape(&shape);
+    adapt_piece(&shape2);
+
 
     render();
 }
@@ -149,7 +153,7 @@ static void game(void) {
     }
 
     // Tick once a second
-    if (gametick++ % 2 == 0) {
+    if (gametick++ % 10 == 0) {
         if(belowCheck(&shape))
             gravity(&shape);
         else
@@ -160,6 +164,8 @@ static void game(void) {
             /*lvl = 2;*/
     }
 
+    draw_gameScreen();
+    draw_shape(&shape2);
     draw_shape(&shape);
     draw_grid_pieces();
     draw_borders();

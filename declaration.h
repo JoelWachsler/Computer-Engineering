@@ -55,9 +55,12 @@ void draw_square(const Square *square);
 void draw_grid_pieces(void);
 void draw_menu(void);
 void draw_borders(void);
+void draw_gameScreen(void);
+
 
 /* Declare functions used for easier creation of tetris */
 void create_shape(Shape *shape);
+void adapt_piece(Shape *shape);
 void rotate_shape(Shape *shape);
 void moveSideways(Shape *shape, int way);
 bool belowCheck(Shape *shape); //Is needed, to know when we are at bottom
@@ -83,6 +86,10 @@ int fullRow(void);
 */
 void display_debug( volatile int * const addr );
 
+/*More stuff to game display*/
+extern const uint8_t const gameFont[512];
+/*Sexy menu */
+extern const uint8_t const menuFont[512];
 /* Declare bitmap array containing font */
 extern const uint8_t const font[128*8];
 /* Declare bitmap array containing icon */
