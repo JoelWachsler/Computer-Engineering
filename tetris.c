@@ -15,16 +15,16 @@
 #include "declaration.h"    /* Declarations of project specific functions */
 #include <stdbool.h>        /* To be able to use boolean */
 
-unsigned char btns;
-unsigned char menuPointer;
-unsigned int score = 0;
-unsigned char lvl = 10;
+static unsigned char btns;
+static unsigned char menuPointer;
+static unsigned int score = 0;
+static unsigned char lvl = 10;
 
-unsigned int gametick = 0;
-unsigned int other = 0;
+static uint64_t gametick = 0;
+static uint64_t seed = 0;
 
-Shape shape;
-Shape menuSelect;
+static Shape shape;
+static Shape menuSelect;
 
 typedef enum {
     MAIN_MENU,
@@ -32,8 +32,10 @@ typedef enum {
     HISCORE
 } Game_Screen;
 
+// The current game screen
 Game_Screen current_game_screen;
 
+// Get all buttons
 unsigned char getbtns(void) {
     return PORTD >> 4 & 0b1110 | PORTF >> 1 & 0x01;
 }
@@ -46,7 +48,7 @@ static void timer_init(void) {
     T2CON = 0x70;                   // Stop timer and set prescale to 1:256
     PR2 = (80000000 / 256) / 10;    // Set period to flag 10 times a second
     T2CONSET = 0x8000;              // Start the timer (the bit to start the
-        // timer's located at bit 15)
+    // timer's located at bit 15)
 }
 
 /**
@@ -61,9 +63,15 @@ static void btn_init(void) {
 static void game_init(void) {
     current_game_screen = GAME;
 
+    // Set seed
+    rng.state = 0U;
+    rng.inc = (seed << 1u) | 1u;
+    pcg32_random_r(&rng);
+    rng.state += seed;
+    pcg32_random_r(&rng);
+
     draw_borders();
     setGrid();//To set the borders in the grid to true
-    shape.piece_type = 0;
     create_shape(&shape);
 
     render();
@@ -100,7 +108,6 @@ void init(void) {
 }
 
 static void main_menu(void) {
-    //For the menu
     switch(btns) {
         case 2:
             if (!menuPointer)
@@ -152,8 +159,9 @@ static void game(void) {
     if (gametick++ % 2 == 0) {
         if(belowCheck(&shape))
             gravity(&shape);
-        else
+        else {
             create_shape(&shape);
+        }
         //Reset shapes cordinates and change shape
         score += (1000/(4/fullRow()));
         /*if(score > 100)*/
@@ -175,6 +183,7 @@ static void hiscore(void) {
 */
 void update(void) {
     btns = getbtns();
+    seed++;
 
     if (IFS(0) & 0x100) {
         IFS(0) = 0; // Reset timer flag

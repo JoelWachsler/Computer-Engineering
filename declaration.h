@@ -1,3 +1,6 @@
+#ifndef DECLARATION_H_URHXV5O2
+#define DECLARATION_H_URHXV5O2
+
 /**
  * @file    declaration.h
  * @author  F Lundevall
@@ -12,6 +15,8 @@
  * by F Lundevall and Axel Isaksson.
  */
 
+#include <stdint.h>         /* Declarations of uint_32 and the like */
+#include <pic32mx.h>        /* Declarations of system-specific addresses etc */
 #include <stdbool.h>        /* To be able to use boolean */
 
 // Declare different types of pieces
@@ -35,7 +40,7 @@ typedef struct {
 // This shape will be used to build the different blocks
 typedef struct {
     Square piece[4];   // There's always 4 pieces
-    unsigned char piece_type;
+    Piece_Type piece_type;
 } Shape;
 
 // Used for holding the highscores
@@ -69,6 +74,16 @@ int fullRow(void);
 /*char *itoaconv(int num);*/
 /*void quicksleep(int cyc);*/
 
+// Random
+typedef struct {
+    uint64_t state;
+    uint64_t inc;
+} pcg32_random_t;
+
+uint32_t pcg32_random_r(pcg32_random_t* rng);
+// Make this variable global to we can seed it
+extern pcg32_random_t rng;
+
 /* Declare display_debug - a function to help debugging.
 
    After calling display_debug,
@@ -93,3 +108,5 @@ extern char textbuffer[4][16];
 /* Game specific declarations */
 void update();
 void init();
+
+#endif /* end of include guard: DECLARATION_H_URHXV5O2 */

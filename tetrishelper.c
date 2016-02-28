@@ -16,6 +16,11 @@
 #define ORIGIN_X 4
 #define ORIGIN_Y 26
 
+// Random pieces
+static const Piece_Type pieces[] = { I, L, J, O, T, Z, S };
+// Random seed
+pcg32_random_t rng;
+
 /**
 * Create an 33 * 11 boolean array that will represent the grid
 * for tetris.
@@ -27,16 +32,14 @@ bool grid[(32+1)*(10+2)] = {false}; //create the grid
 */
 void setGrid(void)
 {
-    int x;
-    int y;
+    int x, y;
     for(y=0; y < 32; y++)
-    for(x=0; x < 12; x++)
-    {
-        if(x == 0 || x == 11 || y == 0)//To declare all the borders as true
-        grid[x + y * 12] = true;
-        else
-        grid[x + y * 12] = false;//Everyting else will be false at start
-    }
+        for(x=0; x < 12; x++) {
+            if(x == 0 || x == 11 || y == 0)//To declare all the borders as true
+                grid[x + y * 12] = true;
+            else
+                grid[x + y * 12] = false;//Everyting else will be false at start
+        }
 }
 
 /**
@@ -55,10 +58,12 @@ void setGrid(void)
  * @param [in] shape Pointer to the resulting struct with the id already defined
  */
 void create_shape(Shape *shape) {
+    // Ranomize the piece
+    shape->piece_type = pieces[pcg32_random_r(&rng) % 7];
     // The pieces are always created at the same origin coordinate (4, 28)
     // 5 coords from the top.
     switch(shape->piece_type) {
-        case 0:
+        case I:
             // Bottom
             shape->piece[0].x = ORIGIN_X;
             shape->piece[0].y = ORIGIN_Y;
@@ -72,7 +77,7 @@ void create_shape(Shape *shape) {
             shape->piece[3].x = ORIGIN_X+1;
             shape->piece[3].y = ORIGIN_Y;
             break;
-        case 1:
+        case L:
             // Center
             shape->piece[0].x = ORIGIN_X;
             shape->piece[0].y = ORIGIN_Y;
@@ -86,7 +91,7 @@ void create_shape(Shape *shape) {
             shape->piece[3].x = ORIGIN_X-1;
             shape->piece[3].y = ORIGIN_Y-1;
             break;
-        case 2:
+        case J:
             // Center
             shape->piece[0].x = ORIGIN_X;
             shape->piece[0].y = ORIGIN_Y;
@@ -100,7 +105,7 @@ void create_shape(Shape *shape) {
             shape->piece[3].x = ORIGIN_X+1;
             shape->piece[3].y = ORIGIN_Y-1;
             break;
-        case 3:
+        case O:
             // Bottom left
             shape->piece[0].x = ORIGIN_X;
             shape->piece[0].y = ORIGIN_Y;
@@ -114,7 +119,7 @@ void create_shape(Shape *shape) {
             shape->piece[3].x = ORIGIN_X + 1;
             shape->piece[3].y = ORIGIN_Y + 1;
             break;
-        case 4:
+        case T:
             // Top center
             shape->piece[0].x = ORIGIN_X;
             shape->piece[0].y = ORIGIN_Y;
@@ -128,7 +133,7 @@ void create_shape(Shape *shape) {
             shape->piece[3].x = ORIGIN_X+1;
             shape->piece[3].y = ORIGIN_Y;
             break;
-        case 5:
+        case Z:
             // Bottom center
             shape->piece[0].x = ORIGIN_X;
             shape->piece[0].y = ORIGIN_Y;
@@ -142,7 +147,7 @@ void create_shape(Shape *shape) {
             shape->piece[3].x = ORIGIN_X+1;
             shape->piece[3].y = ORIGIN_Y;
             break;
-        case 6:
+        case S:
             // Bottom center
             shape->piece[0].x = ORIGIN_X;
             shape->piece[0].y = ORIGIN_Y;
