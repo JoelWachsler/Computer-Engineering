@@ -11,7 +11,20 @@
  * Some of the content of this file was based on the lab files written
  * by F Lundevall and Axel Isaksson.
  */
+
 #include <stdbool.h>        /* To be able to use boolean */
+
+// Declare different types of pieces
+typedef enum {
+    I,
+    L,
+    J,
+    O,
+    T,
+    Z,
+    S
+} Piece_Type;
+
 // Declare rectangle for abstraction between
 // the programmer and the oled screen
 typedef struct {
@@ -25,6 +38,11 @@ typedef struct {
     unsigned char piece_type;
 } Shape;
 
+// Used for holding the highscores
+typedef struct {
+    unsigned int* scores;
+} Highscore;
+
 /* Declare display-related functions from display.c */
 void display_image(int x, const uint8_t *data);
 void display_init(void);
@@ -35,6 +53,8 @@ void render(void);
 void draw_shape(const Shape *shape);
 void draw_square(const Square *square);
 void draw_grid_pieces(void);
+void draw_menu(void);
+void draw_borders(void);
 
 /* Declare functions used for easier creation of tetris */
 void create_shape(Shape *shape);
@@ -46,10 +66,8 @@ bool rotateCheck(Shape *shape);
 int fullRow(void);
 
 /* Declare functions from helper.c */
-char *itoaconv(int num);
-void quicksleep(int cyc);
-void tick(unsigned int * timep);
-void clear(uint8_t *item);
+/*char *itoaconv(int num);*/
+/*void quicksleep(int cyc);*/
 
 /* Declare display_debug - a function to help debugging.
 

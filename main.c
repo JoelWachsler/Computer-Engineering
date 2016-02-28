@@ -52,10 +52,10 @@ int main(void) {
     /* SPI2CON bit ON = 1; */
     SPI2CONSET = 0x8000;
 
-    init(); /* Do any lab-specific initialization */
+    init(); // Do any lab-specific initialization
 
     while(1)
-        update(); /* Update the screen */
+        update(); // Update the screen
 
     return 0;
 }

@@ -15,18 +15,27 @@
 #include "declaration.h"    /* Declarations of project specific functions */
 #include <stdbool.h>        /* To be able to use boolean */
 
-int btns;
-int btns2;
-int menuPointer = 0;
-int gameMode = 0;
-int score = 0;
-int lvl = 10;
+unsigned char btns;
+unsigned char menuPointer;
+unsigned int score = 0;
+unsigned char lvl = 10;
 
-int getbtns(void) {
-    return PORTD >> 5 & 0b1111;
-}
-int getbtns2(void){//We want to get input from button 1
-    return PORTF >> 1 & 0x01;
+unsigned int gametick = 0;
+unsigned int other = 0;
+
+Shape shape;
+Shape menuSelect;
+
+typedef enum {
+    MAIN_MENU,
+    GAME,
+    HISCORE
+} Game_Screen;
+
+Game_Screen current_game_screen;
+
+unsigned char getbtns(void) {
+    return PORTD >> 4 & 0b1110 | PORTF >> 1 & 0x01;
 }
 
 /**
@@ -49,113 +58,140 @@ static void btn_init(void) {
     TRISDSET = 0b1111111 << 5;
 }
 
+static void game_init(void) {
+    current_game_screen = GAME;
+
+    draw_borders();
+    setGrid();//To set the borders in the grid to true
+    shape.piece_type = 0;
+    create_shape(&shape);
+
+    render();
+}
+
+static void main_menu_init(void) {
+    current_game_screen = MAIN_MENU;
+
+    menuPointer = 0;
+    menuSelect.piece_type = 0;
+    create_shape(&menuSelect);
+    menuSelect.piece[0].x = 1;
+    menuSelect.piece[0].y = 29;
+
+    render();
+}
+
+static void hiscore_init(void) {
+    current_game_screen = HISCORE;
+
+    render();
+}
+
 // Create a dummy shape for now
-Shape shape;
-Shape menuSelect;
 /**
 * Do tasks before everything starts
 */
 void init(void) {
     display_init(); // Initalize display
     timer_init();
-
-    /*display_string(0, "TETRIS!!!");*/
     display_update();
 
-    draw_borders();
-
-    setGrid();//To set the borders in the grid to true
-
-    shape.piece_type = 0;
-    menuSelect.piece_type = 0;
-    create_shape(&menuSelect);
-    menuSelect.piece[0].x = 1;
-    menuSelect.piece[0].y = 29;
-
-    create_shape(&shape);
-    //create_shape(&shape1);
-    /*rotate_shape(&shape);*/
-    //draw_shape(&shape);
-    //draw_shape(&shape1);
-
-    render();
+    main_menu_init();   // Start the main menu
 }
 
-unsigned int gametick = 0;
-unsigned int other = 0;
-/**
-* This function is called over and over again
-*/
-void update(void) {
-    btns = getbtns();
-    btns2 = getbtns2();
+static void main_menu(void) {
+    //For the menu
+    switch(btns) {
+        case 2:
+            if (!menuPointer)
+                game_init();
+            else
+                hiscore_init();
 
-    if (IFS(0) & 0x100) {
-        IFS(0) = 0; // Reset timer flag
+            break;
+        case 4:
+            menuSelect.piece[0].y = 25;
+            menuPointer = 1;
+            break;
+        case 8:
+             menuSelect.piece[0].y = 29;
+             menuPointer = 0;
+             break;
+    }
 
-        if(btns2 == 1){//If we want to get fast down
+    draw_square(&menuSelect.piece[0]);
+    draw_menu();
+}
+
+static void game(void) {
+    switch(btns) {
+        case 1:
             if(belowCheck(&shape)){
                 gravity(&shape);
                 score += 10;
             }
             else
                 create_shape(&shape);
-        }
-
-        if(btns == 1) //Now we want to check if we can actually go to the sides
-            if(sideCheck(&shape, 1))
+            break;
+        case 2:
+            if(sideCheck(&shape, 1)) //Now we want to check if we can actually go to the sides
                 moveSideways(&shape, 1);
-
-        if(btns == 2)//Btn3 Controls this
+            break;
+        case 4:
             if(sideCheck(&shape, -1))
                 moveSideways(&shape, -1);
-
-        if(btns == 4) //Now we want to check if we can rotate
+            break;
+        case 8:
             if(rotateCheck(&shape))
                 rotate_shape(&shape);
+            break;
 
-        //For the menu
-        if(btns == 2)
-            if(menuPointer != 0){
-                menuSelect.piece[0].y = 25;
-                draw_square(&menuSelect.piece[0]);
-                menuPointer = 0;
-            }
-        if(btns == 4)
-        if(menuPointer != 1){
-            menuSelect.piece[0].y = 29;
-            draw_square(&menuSelect.piece[0]);
-            menuPointer = 1;
+    }
+
+    // Tick once a second
+    if (gametick++ % 2 == 0) {
+        if(belowCheck(&shape))
+            gravity(&shape);
+        else
+            create_shape(&shape);
+        //Reset shapes cordinates and change shape
+        score += (1000/(4/fullRow()));
+        /*if(score > 100)*/
+            /*lvl = 2;*/
+    }
+
+    draw_shape(&shape);
+    draw_grid_pieces();
+    draw_borders();
+}
+
+static void hiscore(void) {
+    if (btns)
+        main_menu_init();
+}
+
+/**
+* This function is called over and over again
+*/
+void update(void) {
+    btns = getbtns();
+
+    if (IFS(0) & 0x100) {
+        IFS(0) = 0; // Reset timer flag
+
+        switch(current_game_screen) {
+            case MAIN_MENU:
+                main_menu();
+                break;
+            case GAME:
+                game();
+                break;
+            case HISCORE:
+                hiscore();
+                break;
         }
 
-
-        // Tick once a second
-        if (gametick++ % 2 == 0) {
-            /*if (btns & 0x1) {*/
-            /*}*/
-            //rotate_shape(&shape);
-
-            if(belowCheck(&shape))
-                gravity(&shape);
-            else
-                create_shape(&shape);
-                //Reset shapes cordinates and change shape
-            score += (1000/(4/fullRow()));
-            if(score > 100)
-                lvl = 2;
-
-            /*if (other++ % 2 == 0) {
-            rotate_shape(&shape1);
-            gravity(&shape1);
-        }*/
-        }
         // Update the screen 10 times a second
-
-        draw_grid_pieces();
-        draw_square(&menuSelect.piece[0]);
-        draw_shape(&shape);
-        //draw_shape(&shape1);
-
         render();
     }
 }

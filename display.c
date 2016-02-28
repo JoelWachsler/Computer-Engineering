@@ -225,9 +225,9 @@ void draw_menu(void){
     int i;
     int j;
 
-    for(i = 0; i < 4; i++){
-            buffer[(i + 1) * 128 - 1] |= 255;
-    }
+    for(i = 0; i < 4; i++)
+        buffer[(i + 1) * 128 - 1] |= 255;
+
     for(i = 0; i < 512; i++)
         buffer[i] |= menuFont[i];
 
@@ -238,14 +238,13 @@ void draw_menu(void){
         buffer[511 - i] |= 128;
     }
 }
+
 /**
  * This function puts the data from the buffer provided to it and sends it to
  * the screen. The buffer is always 4 * 128 bytes (512 bytes) big.
  * Gets its data from the static buffer.
  */
 void render() {
-    //draw_borders();
-    draw_menu();
     int page, j;
     // 4 stripes across the display called pages
     // each stripe is 8 pixels high and can hold 128 bytes
