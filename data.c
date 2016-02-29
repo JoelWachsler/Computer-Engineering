@@ -42,7 +42,10 @@ const uint8_t const numFont[] = {
 };
 
 const uint8_t const highscoreFont[] = {
-    
+    220 , 17 , 156 , 5  , 220 , 0 , 255 , 0 ,   // Page 1
+    221 , 85 , 93  , 89 , 213 , 0 , 255 , 0 ,   // Page 2
+    221 , 17 , 209 , 81 , 221 , 0 , 255 , 0 ,   // Page 3
+    85  , 81 , 117 , 84 , 85  , 0 , 127 , 0 ,   // Page 4
 };
 
 //Font for menu

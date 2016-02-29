@@ -63,6 +63,8 @@ void draw_borders(void);
 void draw_gameScreen(void);
 void draw_number(unsigned const char num, unsigned const char x, unsigned const char y);
 void draw_score(unsigned int num, unsigned const short y);
+void draw_hiscore(void);
+void draw_punctuation(const unsigned char y);
 
 
 /* Declare functions used for easier creation of tetris */
@@ -111,6 +113,8 @@ extern const uint8_t const gameFont[512];
 extern const uint8_t const menuFont[512];
 /* Score font */
 extern const uint8_t const numFont[5*2*10];
+// "HISCORE" text
+extern const uint8_t const highscoreFont[8*4];
 /* Declare bitmap array containing font */
 extern const uint8_t const font[128*8];
 /* Declare bitmap array containing icon */

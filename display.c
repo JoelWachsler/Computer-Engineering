@@ -192,6 +192,26 @@ void draw_score(unsigned int num, unsigned const short y) {
 }
 
 /**
+ * Draws "HISCORE" at a fixed position.
+ */
+void draw_hiscore(void) {
+    unsigned char page, i;
+    for (page = 0; page < 4; page++)
+        for (i = 0; i < 8; i++)
+            buffer[page*128 + i] |= highscoreFont[i + page*8];
+}
+
+/**
+ * Draws punctuation at constant x value.
+ *
+ * @param [in] y Value where the punctuation shall be drawn.
+ */
+void draw_punctuation(const unsigned char y) {
+    buffer[3*128 + y] |= 4;
+    buffer[3*128 + y + 2] |= 4;
+}
+
+/**
  * Draw the borders
  */
 void draw_borders(void) {

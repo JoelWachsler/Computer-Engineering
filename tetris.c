@@ -140,18 +140,18 @@ void init(void) {
 
 static void main_menu(void) {
     switch(btns) {
-        case 2:
+        case 8:
             if (!menuPointer)
                 game_init();
             else
                 hiscore_init();
 
             break;
-        case 4:
+        case 2:
             menuSelect.piece[0].y = 25;
             menuPointer = 1;
             break;
-        case 8:
+        case 4:
              menuSelect.piece[0].y = 29;
              menuPointer = 0;
              break;
@@ -256,7 +256,11 @@ static void hiscore(void) {
     for(i = 0; i < 8; i++) {
         draw_score(scores[i], 7*2*(i + 1));
         draw_number(i + 1, 7, 7*2*(i + 1) - 7);
+        draw_punctuation(7*2*(i + 1) - 7 + 1);
     }
+
+    // Draw "HISCORE" text
+    draw_hiscore();
 }
 
 /**
