@@ -85,6 +85,9 @@ static void btn_init(void) {
     TRISDSET = 0b1111111 << 5;
 }
 
+/**
+ * Prepare the game before start.
+ */
 static void game_init(void) {
     current_game_screen = GAME;
     level = 0;
@@ -109,8 +112,12 @@ static void game_init(void) {
     render();
 }
 
+/**
+ * Prepare main menu before start.
+ */
 static void main_menu_init(void) {
     current_game_screen = MAIN_MENU;
+    animation_start();
 
     menuPointer = 0;
     menuSelect.piece_type = 0;
@@ -161,6 +168,9 @@ static void main_menu(void) {
     draw_menu();
 }
 
+/**
+ * This is the actual game.
+ */
 static void game(void) {
     switch(btns) {
         case 1:
@@ -216,8 +226,7 @@ static void game(void) {
             randomize_piece(&shape2);
             adapt_piece(&shape2);
         }
-        // Reset shapes cordinates and change shape
-        /*score += (1000/(4/fullRow()));*/
+
         // Original tetris scores
         unsigned short rows = fullRow();
         totalRows += rows;
@@ -248,6 +257,9 @@ static void game(void) {
     draw_score(score, 22);
 }
 
+/**
+ * Renders the highscore.
+ */
 static void hiscore(void) {
     if (btns)
         main_menu_init();
