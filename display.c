@@ -65,39 +65,49 @@ uint8_t spi_send_recv(uint8_t data) {
     return SPI2BUF;
 }
 
+static uint8_t buffer_copy[512];
+
 /**
- * Build up block across the screen. From the bottom up.
+ * Taking down the blocks and drawing up the menu
  */
-void animation_start(void) {
-    static uint8_t buffer_copy[512] = {0};
-    int i, j, v;
-    for(i = 0; i < 512; i++)//Copy everything
-        buffer_copy[i]  = buffer[i];
-    for(i = 127; i > -1; i--)
-        for(j = 0; j < 4; j++){//We may want a delay here so you can see the changes
-            buffer_copy[i + j * 128] |= 255;
+static void animation_to_menu(void) {
+    int i, j, v, z;
+    for(i = 0; i < 128; i+=4)
+        for(j = 3; j > -1; j--){
+            for(z = 0; z < 1000000 / 4; z++);  // Small delay
+            buffer_copy[i + j * 128]         = 0;
+            buffer_copy[i + j * 128]        |= menuFont[i+j * 128];
+            buffer_copy[i + j * 128+1]       = 0;
+            buffer_copy[i + j * 128+1]      |= menuFont[i+j * 128+1];
+            buffer_copy[i + j * 128+2]       = 0;
+            buffer_copy[i + j * 128+2]      |= menuFont[i+j * 128+2];
+            buffer_copy[i + j * 128+3]       = 0;
+            buffer_copy[i + j * 128+3]      |= menuFont[i+j * 128+3];
             for(v = 0; v < 512; v++)//To draw everything up with the added blocks
-                buffer[i] |= buffer_copy[i];
+                buffer[v] |= buffer_copy[v];
             render();
         }
 }
 
 /**
- * Taking down the blocks and drawing up the menu
+ * Build up block across the screen. From the bottom up.
  */
-void animation_to_menu(void) {
-    static uint8_t menu_buffer[512] = {0};
-    int i;
-    int j;
-    int v;
+void animation_start(void) {
+    int i, j, v, z;
     for(i = 0; i < 512; i++)//Copy everything
-        menu_buffer[i]  = menuFont[i];
-    for(i = 0; i < 128; i++)
-        for(j = 3; j > -1; j--){
-            buffer[i + j * 128] = 0;
-            buffer[i + j * 128] |= menu_buffer[i];
+        buffer_copy[i] = buffer[i];
+    for(i = 127; i > -1; i-=4)
+        for(j = 0; j < 4; j++){//We may want a delay here so you can see the changes
+            for(z = 0; z < 1000000 / 4; z++);  // Small delay
+            buffer_copy[i + j * 128] |= 255;
+            buffer_copy[i + j * 128 - 1] |= 255;
+            buffer_copy[i + j * 128 - 2] |= 255;
+            buffer_copy[i + j * 128 - 3] |= 255;
+            for(v = 0; v < 512; v++)//To draw everything up with the added blocks
+                buffer[v] |= buffer_copy[v];
             render();
-         }
+        }
+    animation_to_menu();
 }
 
 /**
@@ -214,14 +224,6 @@ void draw_number(unsigned const char num, unsigned const char x, unsigned const 
  */
 void draw_score(unsigned int num, unsigned const short y) {
     unsigned char i;
-    /*unsigned char items = 8;*/
-    /*// Determine the number of digits*/
-    /*for(i = 0; i < 8; i++)*/
-        /*if (num % pow(10, (8-i) + 1) / pow(10, (8-i)) == 0)*/
-            /*items--;*/
-        /*else*/
-            /*break;*/
-
     for (i = 0; i < 8; i++)
         draw_number(num % pow(10, i + 1) / pow(10, i), i, y);
 }
@@ -282,21 +284,13 @@ void draw_gameScreen(void) {
  * Draw the menu.
  */
 void draw_menu(void){
-    int i;
-    int j;
+    unsigned short i;
 
     for(i = 0; i < 4; i++)
         buffer[(i + 1) * 128 - 1] |= 255;
 
     for(i = 0; i < 512; i++)
         buffer[i] |= menuFont[i];
-
-    for(i = 0; i < 128; i++) {
-        // Draw the right border
-        buffer[127 - i] |= 1;
-        // Draw the left border
-        buffer[511 - i] |= 128;
-    }
 }
 
 /**

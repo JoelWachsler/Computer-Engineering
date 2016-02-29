@@ -117,7 +117,6 @@ static void game_init(void) {
  */
 static void main_menu_init(void) {
     current_game_screen = MAIN_MENU;
-    animation_start();
 
     menuPointer = 0;
     menuSelect.piece_type = 0;
@@ -169,6 +168,23 @@ static void main_menu(void) {
 }
 
 /**
+ * This function's called at game over.
+ */
+void game_over(void) {
+    draw_gameScreen();
+    draw_shape(&shape2);
+    draw_shape(&shape);
+    draw_grid_pieces();
+    draw_borders();
+    draw_score(score, 22);
+
+    save_score(score);
+
+    animation_start();
+    main_menu_init();
+}
+
+/**
  * This is the actual game.
  */
 static void game(void) {
@@ -181,8 +197,7 @@ static void game(void) {
                 shape.piece_type = shape2.piece_type;
                 create_shape(&shape);
                 if (!belowCheck(&shape)) {
-                    save_score(score);
-                    main_menu_init();   // GAME OVER
+                    game_over();
                     return;
                 }
                 randomize_piece(&shape2);
@@ -219,8 +234,8 @@ static void game(void) {
             shape.piece_type = shape2.piece_type;
             create_shape(&shape);
             if (!belowCheck(&shape)) {
-                save_score(score);
-                main_menu_init();   // GAME OVER
+                game_over();
+
                 return;
             }
             randomize_piece(&shape2);
@@ -266,9 +281,9 @@ static void hiscore(void) {
 
     unsigned char i = 0;
     for(i = 0; i < 8; i++) {
-        draw_score(scores[i], 7*2*(i + 1));
-        draw_number(i + 1, 7, 7*2*(i + 1) - 7);
-        draw_punctuation(7*2*(i + 1) - 7 + 1);
+        draw_score(scores[i], 7*2*(i + 1) + 4);
+        draw_number(i + 1, 7, 7*2*(i + 1) - 7 + 4);
+        draw_punctuation(7*2*(i + 1) - 7 + 1 + 4);
     }
 
     // Draw "HISCORE" text
