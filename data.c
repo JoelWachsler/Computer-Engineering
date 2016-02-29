@@ -19,8 +19,8 @@
 char textbuffer[4][16];
 
 const uint8_t const numFont[] = {
-    2   , 5  , 5   , 5  , 2   , // 0 spot 0
-    32  , 80 , 80  , 80 , 32  , // 0 spot 0
+    7   , 5  , 5   , 5  , 7   , // 0 spot 0
+    112 , 80 , 80  , 80 , 112 , // 0 spot 0
     2   , 6  , 2   , 2  , 7   , // 1 spot 0
     32  , 96 , 32  , 32 , 112 , // 1 spot 1
     7   , 1  , 7   , 4  , 7   , // 2 spot 0
@@ -41,6 +41,9 @@ const uint8_t const numFont[] = {
     112 , 80 , 112 , 16 , 16  , // 9 spot 1
 };
 
+const uint8_t const highscoreFont[] = {
+    
+};
 
 //Font for menu
 const uint8_t const menuFont[512] = {

@@ -29,6 +29,11 @@ static Shape shape;
 static Shape menuSelect;
 static Shape shape2;
 
+static bool rotateSpam = false;
+
+// Variable for preventing multiple button values
+static bool btn4Check = false;
+
 typedef enum {
     MAIN_MENU,
     GAME,
@@ -183,9 +188,16 @@ static void game(void) {
                 moveSideways(&shape, -1);
             break;
         case 8:
-            if(rotateCheck(&shape))
-                rotate_shape(&shape);
+            if(rotateCheck(&shape)) {
+                // Prevent rotation spamming
+                if (!rotateSpam) {
+                    rotateSpam = true;
+                    rotate_shape(&shape);
+                }
+            }
             break;
+        default:
+            rotateSpam = false;
 
     }
 
@@ -224,10 +236,8 @@ static void game(void) {
                 break;
         }
 
-        // Original score calulcaton
-        level = totalRows > 100 ? 10: (totalRows % 100) / 10;
-        /*if(score > 100)*/
-            /*lvl = 2;*/
+        // Original level calulcaton
+        level = totalRows > 99 ? 9: totalRows / 10;
     }
 
     draw_gameScreen();
@@ -253,6 +263,7 @@ static void hiscore(void) {
 * This function is called over and over again
 */
 void update(void) {
+    // Check btn3, btn2 and btn1 as many times as possible
     btns = getbtns();
     seed++;
 

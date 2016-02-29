@@ -283,6 +283,10 @@ void adapt_piece(Shape *shape){
  * @param [out] shape Pointer to the shape which will be rotated
  */
 void rotate_shape(Shape *shape) {
+    // The square cannot be rotated
+    if (shape->piece_type == O)
+        return;
+
     unsigned char i, x, y, xc, yc;
     xc = shape->piece[0].x;
     yc = shape->piece[0].y;
@@ -456,22 +460,22 @@ int fullRow(){
     int antalRow = 0;
     int antalRowB = 0;
 
-    for(y = 31; y > -1; y--){//Going through all rows to see if we have a full row
+    for(y = 31; y > -1; y--){   // Going through all rows to see if we have a full row
         fullrow = 0;
         for(x = 0; x < 10; x++){
             if(grid[(x + 1) + (y * 12) + 12])
                 fullrow++;
         }
-        if(fullrow == 10){//If we have a full row we add one to the amount of rows to remove
+        if(fullrow == 10){  // If we have a full row we add one to the amount of rows to remove
             antalRowB++;
             antalRow++;
         }
-        if(fullrow < 10)//1 case when we have a row not at the bottom
+        if(fullrow < 10)    // 1 case when we have a row not at the bottom
             if(antalRow > 0){
                 fixer(y, 1, antalRow);
                 antalRow = 0;
         }
-        if(y == 0)//2 case when the full row is at the bottom
+        if(y == 0)          // 2 case when the full row is at the bottom
             if(antalRow > 0){
                 fixer(y, 0, antalRow);
                 antalRow = 0;
