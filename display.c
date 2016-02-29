@@ -66,6 +66,42 @@ uint8_t spi_send_recv(uint8_t data) {
 }
 
 /**
+ * Build up block across the screen. From the bottom up.
+ */
+void animation_start(void) {
+    static uint8_t buffer_copy[512] = {0};
+    int i;
+    int j;
+    int v;
+    for(i = 0; i < 512; i++)//Copy everything
+        buffer_copy[i]  = buffer[i];
+    for(i = 127; i > -1; i--)
+        for(j = 0; j < 4; j++){//We may want a delay here so you can see the changes
+            buffer_copy[i + j * 128] |= 255
+            for(v = 0; v < 512; v++)//To draw everything up with the added blocks
+                buffer[i] |= buffer_copy[i];
+            render();
+        }
+}
+
+/**
+ * Taking down the blocks and drawing up the menu
+ */
+void animation_to_menu(void) {
+    static uint8_t menu_buffer[512] = {0};
+    int i;
+    int j;
+    int v;
+    for(i = 0; i < 512; i++)//Copy everything
+        menu_buffer[i]  = menuFont[i];
+    for(i = 0; i < 128; i++)
+        for(j = 3; j > -1; j--){
+            buffer[i + j * 128] = 0;
+            buffer[i + j * 128] |= menu_buffer[i];
+            render();
+         }
+}
+/**
  * Commands to initalize the oled sqreen. If they are not done
  * in this order the screen could be damaged!
  */

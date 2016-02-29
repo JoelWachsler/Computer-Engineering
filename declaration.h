@@ -63,6 +63,7 @@ void draw_borders(void);
 void draw_gameScreen(void);
 void draw_number(unsigned const char num, unsigned const char x, unsigned const char y);
 void draw_score(unsigned int num, unsigned const short y);
+void animation_start(void);
 
 
 /* Declare functions used for easier creation of tetris */
