@@ -61,6 +61,8 @@ void draw_grid_pieces(void);
 void draw_menu(void);
 void draw_borders(void);
 void draw_gameScreen(void);
+void draw_number(unsigned const char num, unsigned const char x, unsigned const char y);
+void draw_score(unsigned int num, unsigned const short y);
 
 
 /* Declare functions used for easier creation of tetris */
@@ -75,6 +77,7 @@ int fullRow(void);
 void randomize_piece(Shape *shape);
 
 /* Declare functions from helper.c */
+unsigned int pow(unsigned const char base, unsigned char exponent);
 /*char *itoaconv(int num);*/
 /*void quicksleep(int cyc);*/
 
@@ -102,10 +105,12 @@ extern pcg32_random_t rng;
 */
 void display_debug( volatile int * const addr );
 
-/*More stuff to game display*/
+/* More stuff to game display*/
 extern const uint8_t const gameFont[512];
-/*Sexy menu */
+/* Sexy menu */
 extern const uint8_t const menuFont[512];
+/* Score font */
+extern const uint8_t const numFont[5*2*10];
 /* Declare bitmap array containing font */
 extern const uint8_t const font[128*8];
 /* Declare bitmap array containing icon */

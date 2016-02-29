@@ -5,7 +5,7 @@
  * @date    2016
  * @copyright For copyright and licensing, see file COPYING
  *
- * Helper functions for the tetris project
+ * Helper functions for the tetris project.
  */
 
 #include <stdint.h>         /* Declarations of uint_32 and the like */
@@ -21,20 +21,16 @@ static const Piece_Type pieces[] = { I, L, J, O, T, Z, S };
 // Random seed
 pcg32_random_t rng;
 
-/**
-* Create an 33 * 11 boolean array that will represent the grid
-* for tetris.
-*/
-bool grid[(32+1)*(10+2)] = {false}; //create the grid
+// Create an 33 * 11 boolean array that will represent the grid for tetris.
+bool grid[(32+1)*(10+2)] = {false};
 
 /**
 * Create the borders for the grid and set everything else to false
 */
-void setGrid(void)
-{
-    int x, y;
-    for(y=0; y < 32; y++)
-        for(x=0; x < 12; x++) {
+void setGrid(void) {
+    unsigned char x, y;
+    for(y = 0; y < 32; y++)
+        for(x = 0; x < 12; x++) {
             if(x == 0 || x == 11 || y == 0)//To declare all the borders as true
                 grid[x + y * 12] = true;
             else
@@ -42,10 +38,16 @@ void setGrid(void)
         }
 }
 
+/**
+ * Sets the piece_type to a random one.
+ *
+ * @param [out] shape Pointer to the shape where the random piece will be put
+ */
 void randomize_piece(Shape *shape) {
     // Randomize the piece
     shape->piece_type = pieces[pcg32_random_r(&rng) % 7];
 }
+
 /**
  * Creates the shape based on the id pass to this function.
  * We have to pass the result shape to the function because
@@ -56,10 +58,10 @@ void randomize_piece(Shape *shape) {
  * 2: J
  * 3: Big square (O)
  * 4: Triangle (T)
- * 5: Zigzag left (z)
- * 6: Zigzag right (s)
+ * 5: Zigzag left (Z)
+ * 6: Zigzag right (S)
  *
- * @param [in] shape Pointer to the resulting struct with the id already defined
+ * @param [out] shape Pointer to the resulting struct with the id already defined
  */
 void create_shape(Shape *shape) {
     // The pieces are always created at the same origin coordinate (4, 28)
@@ -166,6 +168,11 @@ void create_shape(Shape *shape) {
     }
 }
 
+/**
+ * Moves the piece to the little square on the top of the screen.
+ *
+ * @param [out] shape Pointer to shape which is to be moved.
+ */
 void adapt_piece(Shape *shape){
     //This will move the piece to the display
     switch(shape->piece_type) {
@@ -273,7 +280,7 @@ void adapt_piece(Shape *shape){
 /**
  * This function will change the shape of the item passed to it
  *
- * @param [in] shape Pointer to the shape which will be rotated
+ * @param [out] shape Pointer to the shape which will be rotated
  */
 void rotate_shape(Shape *shape) {
     unsigned char i, x, y, xc, yc;
@@ -297,7 +304,7 @@ void rotate_shape(Shape *shape) {
 /**
  * Moves the shape one step towards the bottom of the screen.
  *
- * @param [in] shape The shape to move
+ * @param [out] shape The shape to move
  */
 void gravity(Shape *shape) {
     // Gravity doesn't play well with rotate_shape
@@ -310,7 +317,7 @@ void gravity(Shape *shape) {
 /**
  * Moves the shape either right or left on the screen.
  *
- * @param [in] shape The shape to move
+ * @param [out] shape The shape to move
  * @param [in] way decides if we go left or right
  */
 void moveSideways(Shape *shape, int way) {
@@ -400,9 +407,7 @@ bool rotateCheck(Shape *shape){
 *This function will draw all the true in the gridbox
 */
 void draw_grid_pieces(){
-
-    int x;
-    int y;
+    int x, y;
     gridShape.piece_type = 1;
     create_shape(&gridShape);
     for(y = 0; y < 32; y++){
@@ -472,5 +477,6 @@ int fullRow(){
                 antalRow = 0;
             }
     }
+
     return antalRowB;
 }

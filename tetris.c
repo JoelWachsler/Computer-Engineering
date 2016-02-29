@@ -17,8 +17,10 @@
 
 static unsigned char btns;
 static unsigned char menuPointer;
-static unsigned int score = 0;
-static unsigned char lvl = 10;
+static unsigned int score;
+static unsigned char level;
+static unsigned int totalRows;
+static unsigned int scores[8] = {0};
 
 static uint64_t gametick = 0;
 static uint64_t seed = 0;
@@ -36,9 +38,27 @@ typedef enum {
 // The current game screen
 Game_Screen current_game_screen;
 
-// Get all buttons
+/**
+ * Get button values.
+ */
 unsigned char getbtns(void) {
     return PORTD >> 4 & 0b1110 | PORTF >> 1 & 0x01;
+}
+
+/**
+ * Save score.
+ *
+ * @param [in] score The score to save.
+ */
+void save_score(unsigned int score) {
+    unsigned int temp = score;
+    unsigned char i;
+    for(i = 0; i < 8; i++)
+        if (scores[i] < score) {
+            temp = scores[i];
+            scores[i] = score;
+            score = temp;
+        }
 }
 
 /**
@@ -48,8 +68,7 @@ static void timer_init(void) {
     // TIMER
     T2CON = 0x70;                   // Stop timer and set prescale to 1:256
     PR2 = (80000000 / 256) / 10;    // Set period to flag 10 times a second
-    T2CONSET = 0x8000;              // Start the timer (the bit to start the
-    // timer's located at bit 15)
+    T2CONSET = 0x8000;              // Start the timer (the bit to start the timer's located at bit 15)
 }
 
 /**
@@ -63,6 +82,9 @@ static void btn_init(void) {
 
 static void game_init(void) {
     current_game_screen = GAME;
+    level = 0;
+    score = 0;
+    totalRows = 0;
 
     // Set seed
     rng.state = 0U;
@@ -100,7 +122,6 @@ static void hiscore_init(void) {
     render();
 }
 
-// Create a dummy shape for now
 /**
 * Do tasks before everything starts
 */
@@ -144,6 +165,11 @@ static void game(void) {
             } else {
                 shape.piece_type = shape2.piece_type;
                 create_shape(&shape);
+                if (!belowCheck(&shape)) {
+                    save_score(score);
+                    main_menu_init();   // GAME OVER
+                    return;
+                }
                 randomize_piece(&shape2);
                 adapt_piece(&shape2);
             }
@@ -164,17 +190,42 @@ static void game(void) {
     }
 
     // Tick once a second
-    if (gametick++ % 10 == 0) {
+    if (gametick++ % (10-level) == 0) {
         if(belowCheck(&shape))
             gravity(&shape);
         else {
             shape.piece_type = shape2.piece_type;
             create_shape(&shape);
+            if (!belowCheck(&shape)) {
+                save_score(score);
+                main_menu_init();   // GAME OVER
+                return;
+            }
             randomize_piece(&shape2);
             adapt_piece(&shape2);
         }
-        //Reset shapes cordinates and change shape
-        score += (1000/(4/fullRow()));
+        // Reset shapes cordinates and change shape
+        /*score += (1000/(4/fullRow()));*/
+        // Original tetris scores
+        unsigned short rows = fullRow();
+        totalRows += rows;
+        switch(rows) {
+            case 1:
+                score += 40 * (level + 1);
+                break;
+            case 2:
+                score += 100 * (level + 1);
+                break;
+            case 3:
+                score += 300 * (level + 1);
+                break;
+            case 4:
+                score += 1200 * (level + 1);
+                break;
+        }
+
+        // Original score calulcaton
+        level = totalRows > 100 ? 10: (totalRows % 100) / 10;
         /*if(score > 100)*/
             /*lvl = 2;*/
     }
@@ -184,11 +235,18 @@ static void game(void) {
     draw_shape(&shape);
     draw_grid_pieces();
     draw_borders();
+    draw_score(score, 22);
 }
 
 static void hiscore(void) {
     if (btns)
         main_menu_init();
+
+    unsigned char i = 0;
+    for(i = 0; i < 8; i++) {
+        draw_score(scores[i], 7*2*(i + 1));
+        draw_number(i + 1, 7, 7*2*(i + 1) - 7);
+    }
 }
 
 /**
@@ -200,6 +258,8 @@ void update(void) {
 
     if (IFS(0) & 0x100) {
         IFS(0) = 0; // Reset timer flag
+        /*unsigned int item = (98765 % pow(10, 2)) / pow(10, 1);*/
+        /*display_debug(&item);*/
 
         switch(current_game_screen) {
             case MAIN_MENU:
@@ -215,5 +275,5 @@ void update(void) {
 
         // Update the screen 10 times a second
         render();
-    }
+   }
 }

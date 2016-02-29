@@ -12,7 +12,20 @@
  * Some parts are original code written by Axel Isaksson
  */
 
-/*#include "declaration.h"*/
+#include "declaration.h"
+
+/**
+ * Pow doesn't exist so let's create one!
+ *
+ * @param [in] base The base of the number.
+ * @param [in] exponent The exponent.
+ */
+unsigned int pow(unsigned const char base, unsigned char exponent) {
+    unsigned int result = 1;
+    for(;exponent > 0; exponent--)
+        result *= base;
+    return result;
+}
 
 /**
  * A simple function to create a small delay.

@@ -152,6 +152,46 @@ void display_image(const int x, const uint8_t *data) {
 }
 
 /**
+ * Draw a number(0-9) at a x and y coordinate.
+ *
+ * @param [in] num The number to write
+ * @param [in] x The x coord of the number
+ * @param [in] y The y coord of the number
+ */
+void draw_number(unsigned const char num, unsigned const char x, unsigned const char y) {
+    // Check coordinate vadility
+    if (x > 7 || y > 127-5 || x < 0 || y < 0)
+        return;
+
+    // Check number vadility
+    if (num > 9 || num < 0)
+        return;
+
+    unsigned char i;
+    for (i = 0; i < 5; i++)
+        buffer[i + y + (x/2)*128] |= numFont[(num*2 + x % 2)*5 + i];
+}
+
+/**
+ * Can draw at most 8 chars long number (99 999 999 is max).
+ *
+ * @param [in] num The number to write
+ */
+void draw_score(unsigned int num, unsigned const short y) {
+    unsigned char i;
+    /*unsigned char items = 8;*/
+    /*// Determine the number of digits*/
+    /*for(i = 0; i < 8; i++)*/
+        /*if (num % pow(10, (8-i) + 1) / pow(10, (8-i)) == 0)*/
+            /*items--;*/
+        /*else*/
+            /*break;*/
+
+    for (i = 0; i < 8; i++)
+        draw_number(num % pow(10, i + 1) / pow(10, i), i, y);
+}
+
+/**
  * Draw the borders
  */
 void draw_borders(void) {
@@ -175,15 +215,16 @@ void draw_borders(void) {
 }
 
 /**
- * Draw more to game display
+ * Draw more to game display.
  */
-void draw_gameScreen(void){
+void draw_gameScreen(void) {
     int i;
     for(i = 0; i < 512; i++)
         buffer[i] |= gameFont[i];
 }
+
 /**
- * Draw the menu
+ * Draw the menu.
  */
 void draw_menu(void){
     int i;
@@ -208,7 +249,7 @@ void draw_menu(void){
  * the screen. The buffer is always 4 * 128 bytes (512 bytes) big.
  * Gets its data from the static buffer.
  */
-void render() {
+void render(void) {
     int page, j;
     // 4 stripes across the display called pages
     // each stripe is 8 pixels high and can hold 128 bytes
