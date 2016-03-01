@@ -109,7 +109,7 @@ extern pcg32_random_t rng;
 void display_debug( volatile int * const addr );
 
 /* Game over death scree font*/
-extern const unit8_t const game_over_font[512]; 
+extern const uint8_t const game_over_font[512]; 
 /* More stuff to game display*/
 extern const uint8_t const gameFont[512];
 /* Sexy menu */

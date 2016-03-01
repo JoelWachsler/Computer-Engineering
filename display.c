@@ -101,18 +101,18 @@ void animation_start(void) {
             for(z = 0; z < 1000000 / 4; z++);  // Small delay
             if(game_over_font[i + j * 128] < 255){
               buffer_copy[i + j * 128]  = 0;
-              buffer_copy[i + j * 128]     ~|= game_over_font[i + j * 128];
+              buffer_copy[i + j * 128]     |= ~ game_over_font[i + j * 128];
               buffer_copy[i + j * 128 - 1] = 0;
-              buffer_copy[i + j * 128 - 1] ~|= game_over_font[i + j * 128 - 1];
+              buffer_copy[i + j * 128 - 1] |= ~ game_over_font[i + j * 128 - 1];
               buffer_copy[i + j * 128 - 2] = 0;
-              buffer_copy[i + j * 128 - 2] ~|= game_over_font[i + j * 128 - 2;
+              buffer_copy[i + j * 128 - 2] |= ~ game_over_font[i + j * 128 - 2];
               buffer_copy[i + j * 128 - 3] = 0;
-              buffer_copy[i + j * 128 - 3] ~|= game_over_font[i + j * 128 - 3];
+              buffer_copy[i + j * 128 - 3] |= ~ game_over_font[i + j * 128 - 3];
             }
             else{
               buffer_copy[i + j * 128]     |= game_over_font[i + j * 128];
               buffer_copy[i + j * 128 - 1] |= game_over_font[i + j * 128 - 1];
-              buffer_copy[i + j * 128 - 2] |= game_over_font[i + j * 128 - 2;
+              buffer_copy[i + j * 128 - 2] |= game_over_font[i + j * 128 - 2];
               buffer_copy[i + j * 128 - 3] |= game_over_font[i + j * 128 - 3];
             }
             for(v = 0; v < 512; v++)//To draw everything up with the added blocks
