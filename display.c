@@ -119,6 +119,7 @@ void animation_start(void) {
                 buffer[v] |= buffer_copy[v];
             render();
         }
+    for(z = 0; z < 1000000; z++);
     animation_to_menu();
 }
 
