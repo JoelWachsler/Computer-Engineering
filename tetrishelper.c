@@ -200,8 +200,8 @@ void adapt_piece(Shape *shape){
             // Left
             shape->piece[2].x = 5;
             shape->piece[2].y = 39;
-            // Bottom left
-            shape->piece[3].x = 5;
+            // Bottom right
+            shape->piece[3].x = 7;
             shape->piece[3].y = 40;
             break;
         case 2:
@@ -214,8 +214,8 @@ void adapt_piece(Shape *shape){
             // Left
             shape->piece[2].x = 5;
             shape->piece[2].y = 39;
-            // Bottom right
-            shape->piece[3].x = 7;
+            // Bottom left
+            shape->piece[3].x = 5;
             shape->piece[3].y = 40;
             break;
         case 3:
